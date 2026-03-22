@@ -4,7 +4,7 @@
 import { spawnSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
 import { rmSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join, resolve, sep } from "node:path";
 
 import { ensureDirSync } from "fs-extra";
 import type { Code, Root } from "mdast";
@@ -86,7 +86,7 @@ function render(dir: string, code: string): string {
         "--puppeteerConfigFile",
         puppeteerConfigFile,
       ],
-      { stdio: [0, "ignore", "pipe"] },
+      { stdio: [0, "ignore", "pipe"], shell: true },
     );
     if (child.status !== 0) {
       throw new Error(
@@ -96,7 +96,7 @@ function render(dir: string, code: string): string {
         },
       );
     }
-    return svgTempFile;
+    return svgTempFile.split(sep).join("/");
   } finally {
     rmSync(mmdcTempFile, { force: true });
   }

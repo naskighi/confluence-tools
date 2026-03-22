@@ -1,6 +1,7 @@
 // SPDX-FileCopyrightText: 2024 Telefónica Innovación Digital
 // SPDX-License-Identifier: Apache-2.0
 
+import type { SpawnOptions } from "child_process";
 import type { Logs } from "./Logger.types";
 
 /** Options for creating a child process manager */
@@ -36,6 +37,7 @@ export interface ChildProcessManagerConstructor {
   new (
     commandAndArguments: string[],
     options?: ChildProcessManagerOptions,
+    crossSpawnOptions?: SpawnOptions,
   ): ChildProcessManagerInterface;
 }
 

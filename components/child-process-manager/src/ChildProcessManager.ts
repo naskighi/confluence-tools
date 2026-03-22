@@ -14,7 +14,7 @@ import type {
   ChildProcessManagerExitCode,
   ChildProcessManagerResult,
 } from "./types";
-import { SpawnOptions } from "child_process";
+import type { SpawnOptions } from "child_process";
 
 const ENCODING_TYPE = "utf8";
 
@@ -49,7 +49,10 @@ export const ChildProcessManager: ChildProcessManagerConstructor = class ChildPr
     this._command = this._getCommandToExecute(commandAndArguments);
     this._silent = options.silent || false;
     this._cwd = options.cwd || process.cwd();
-    this._crossSpawnOptions = crossSpawnOptions || {};
+    this._crossSpawnOptions = {
+      ...(crossSpawnOptions || {}),
+      shell: (crossSpawnOptions && crossSpawnOptions.shell) ?? process.platform === "win32",
+    };
     this._env = options.env;
     this._logger = new Logger({ silent: this._silent });
     this._cliProcess = null;
@@ -109,11 +112,11 @@ export const ChildProcessManager: ChildProcessManagerConstructor = class ChildPr
       stdout.on("data", this._logger.log);
       stderr.on("data", this._logger.log);
 
-      this._cliProcess.on("error", (error) => {
+      this._cliProcess.on("error", (error: Error) => {
         this._logger.log(error.message);
         log(error);
       });
-      this._cliProcess.on("close", (code) => {
+      this._cliProcess.on("close", (code: number | null) => {
         this._exitCode = code;
         this._resolveExitPromise();
       });
