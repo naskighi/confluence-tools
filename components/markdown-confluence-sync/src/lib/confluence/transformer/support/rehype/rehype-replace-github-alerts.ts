@@ -78,7 +78,7 @@ const rehypeReplaceGithubAlerts: UnifiedPlugin<[], Root> =
           children: [
             {
               type: "raw" as const,
-              value: ALERT_TITLES[alertInfo.type],
+              value: alertInfo.title ?? ALERT_TITLES[alertInfo.type],
             },
           ],
         });
@@ -108,6 +108,7 @@ const rehypeReplaceGithubAlerts: UnifiedPlugin<[], Root> =
  */
 interface AlertInfo {
   type: GithubAlertType;
+  title?: string;
   content: HastElement["children"];
 }
 
@@ -164,15 +165,16 @@ function extractAlertInfo(blockquote: HastElement): AlertInfo | undefined {
 
   const text = textNode.value;
 
-  // Check if it starts with an alert marker
-  const alertMatch = text.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\]/);
+  // Check if it starts with an alert marker and optionally captures a title on the same line
+  const alertMatch = text.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*(.*)/);
   if (!alertMatch) {
     return undefined;
   }
 
   const alertType = alertMatch[1] as GithubAlertType;
+  const customTitle = alertMatch[2]?.trim();
 
-  // Remove the alert marker from the text
+  // Remove the alert marker and title from the text for the content body
   const remainingText = text.substring(alertMatch[0].length).trim();
 
   // Build content based on structure
@@ -222,6 +224,7 @@ function extractAlertInfo(blockquote: HastElement): AlertInfo | undefined {
 
   return {
     type: alertType,
+    title: customTitle || undefined,
     content,
   };
 }

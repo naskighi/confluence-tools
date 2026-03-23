@@ -36,8 +36,17 @@ const rehypeReplaceCodeBlocks: UnifiedPlugin<[], Root> =
           return node;
         }
 
-        // Extract the language from the code element's className
-        const language = extractLanguage(codeElement);
+        // Extract the language and title from the code element's className
+        const { language, title: titleFromClass } =
+          extractLanguageAndTitle(codeElement);
+
+        // Extract title from metadata (Docusaurus/MDX style)
+        let title = titleFromClass;
+        if (!title && codeElement.data?.meta) {
+          const meta = codeElement.data.meta as string;
+          const titleMatch = meta.match(/title="([^"]*)"/);
+          title = titleMatch ? titleMatch[1] : undefined;
+        }
 
         // Extract the text content from the code element
         const codeContent = extractTextContent(codeElement);
@@ -57,6 +66,23 @@ const rehypeReplaceCodeBlocks: UnifiedPlugin<[], Root> =
               {
                 type: "raw" as const,
                 value: language,
+              },
+            ],
+          });
+        }
+
+        // Add title parameter if present
+        if (title) {
+          macroChildren.push({
+            type: "element" as const,
+            tagName: "ac:parameter",
+            properties: {
+              "ac:name": "title",
+            },
+            children: [
+              {
+                type: "raw" as const,
+                value: title,
               },
             ],
           });
@@ -90,18 +116,23 @@ const rehypeReplaceCodeBlocks: UnifiedPlugin<[], Root> =
   };
 
 /**
- * Extract the language from the code element's className property.
+ * Extract the language and title from the code element's className property.
  * Markdown renderers typically add classes like "language-javascript"
  * to code elements.
+ * This function also handles titles in the format "language-javascript:MyTitle"
+ * or "language-javascript{line:1}:MyTitle".
  *
  * @param codeElement - The code element to extract the language from
- * @returns The language identifier or undefined if not found
+ * @returns An object containing the language and title (both optional)
  */
-function extractLanguage(codeElement: HastElement): string | undefined {
+function extractLanguageAndTitle(codeElement: HastElement): {
+  language?: string;
+  title?: string;
+} {
   const className = codeElement.properties?.className;
 
   if (!className) {
-    return undefined;
+    return {};
   }
 
   // className is always an array of strings, but we check it for safety
@@ -111,11 +142,21 @@ function extractLanguage(codeElement: HastElement): string | undefined {
   // Look for a class that starts with "language-"
   for (const cls of classNames) {
     if (typeof cls === "string" && cls.startsWith("language-")) {
-      return cls.substring(9); // Remove "language-" prefix
+      const fullLang = cls.substring(9); // Remove "language-" prefix
+
+      // Use regex to parse language, metadata (ignored) and title
+      // Format: lang{meta}:title
+      const regex = /^([^:{ ]*)(?:\{([^}]*)\})?(?::(.*))?$/;
+      const match = fullLang.match(regex)!;
+
+      return {
+        language: match[1] || undefined,
+        title: match[3] || undefined,
+      };
     }
   }
 
-  return undefined;
+  return {};
 }
 
 /**
