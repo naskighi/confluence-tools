@@ -10,7 +10,7 @@ import z from "zod";
  */
 export const FrontMatterValidator = z.object({
   title: z.string().nonempty().optional(),
-  sync_to_confluence: z.boolean().optional().default(false),
+  sync_to_confluence: z.boolean().optional().default(true),
   confluence_short_name: z.string().nonempty().optional(),
   confluence_title: z.string().nonempty().optional(),
   confluence_page_id: z.string().optional(),

@@ -9,6 +9,7 @@ import { remark } from "remark";
 import remarkDirective from "remark-directive";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
+import remarkFlexibleContainers from "remark-flexible-containers";
 import remarkParseFrontmatter from "remark-parse-frontmatter";
 import type { VFile } from "vfile";
 
@@ -124,6 +125,7 @@ export const DocusaurusDocPage: DocusaurusDocPageConstructor = class DocusaurusD
   protected _parseFile(path: string): VFile {
     return remark()
       .use(remarkGfm)
+      .use(remarkFlexibleContainers)
       .use(remarkFrontmatter)
       .use(remarkDirective)
       .use(remarkParseFrontmatter)

@@ -207,6 +207,9 @@ importers:
       remark-directive:
         specifier: 2.0.1
         version: 2.0.1
+      remark-flexible-containers:
+        specifier: ^1.5.3
+        version: 1.5.3(unified@10.1.2)
       remark-frontmatter:
         specifier: 4.0.1
         version: 4.0.1
@@ -306,7 +309,7 @@ importers:
         version: 3.0.4
       babel-plugin-transform-import-meta:
         specifier: 2.2.1
-        version: 2.2.1(@babel/core@7.26.0)
+        version: 2.2.1(@babel/core@7.18.13)
       confluence.js:
         specifier: 1.7.4
         version: 1.7.4
@@ -2105,6 +2108,7 @@ packages:
   basic-ftp@5.0.5:
     resolution: {integrity: sha512-4Bcg1P8xhUuqcii/S0Z9wiHIrQVPMermM1any+MX5GeGD7faD3/msQUDGLol9wOcz4/jbg/WJnGqoJF6LiBdtg==}
     engines: {node: '>=10.0.0'}
+    deprecated: Security vulnerability fixed in 5.2.0, please upgrade
 
   better-ajv-errors@1.2.0:
     resolution: {integrity: sha512-UW+IsFycygIo7bclP9h5ugkNH8EjCSgqyFB/yQ4Hqqa1OEYDtb0uFIkYE0b6+CjkgJYVM5UKI/pJPxjYe9EZlA==}
@@ -5101,6 +5105,7 @@ packages:
   puppeteer@23.11.1:
     resolution: {integrity: sha512-53uIX3KR5en8l7Vd8n5DUv90Ae9QDQsyIthaUFVzwV6yU750RjqRznEtNMBT20VthqAdemnJN+hxVdmMHKt7Zw==}
     engines: {node: '>=18'}
+    deprecated: < 24.15.0 is no longer supported
     hasBin: true
 
   pure-rand@6.1.0:
@@ -5197,6 +5202,11 @@ packages:
 
   remark-directive@2.0.1:
     resolution: {integrity: sha512-oosbsUAkU/qmUE78anLaJePnPis4ihsE7Agp0T/oqTzvTea8pOiaYEtfInU/+xMOVTS9PN5AhGOiaIVe4GD8gw==}
+
+  remark-flexible-containers@1.5.3:
+    resolution: {integrity: sha512-ooJyMBm9Dc17NhvWyXwS8cfMDjFiGIyLemeN5z1eowVUOGVltSqFlBy3Xu9rLXWTQj5kK2DHeoRk4pjL+cTWOQ==}
+    peerDependencies:
+      unified: ^11
 
   remark-frontmatter@4.0.1:
     resolution: {integrity: sha512-38fJrB0KnmD3E33a5jZC/5+gGAC2WKNiPw1/fdXJvijBlhA7RCsvJklrYJakS0HedninvaCYW8lQGf9C918GfA==}
@@ -5791,6 +5801,12 @@ packages:
   unist-util-find-after@4.0.1:
     resolution: {integrity: sha512-QO/PuPMm2ERxC6vFXEPtmAutOopy5PknD+Oq64gGwxKtk4xwo9Z97t9Av1obPmGU0IyTa6EKYUfTrK2QJS3Ozw==}
 
+  unist-util-find-after@5.0.0:
+    resolution: {integrity: sha512-amQa0Ep2m6hE2g72AugUItjbuM8X8cGQnFoHk0pGfrFeT9GZhzN5SW8nRsiGKK7Aif4CrACPENkA6P/Lw6fHGQ==}
+
+  unist-util-find-between-all@1.1.6:
+    resolution: {integrity: sha512-KTlYGJMu3waM/UiDoyJ374VzIvRRfw5yO/DLuy2vkzTfjJ41HDgAO/Tukzga7imk9l3W688arso3kE+5b+IW6g==}
+
   unist-util-find@1.0.4:
     resolution: {integrity: sha512-T5vI7IkhroDj7KxAIy057VbIeGnCXfso4d4GoUsjbAmDLQUkzAeszlBtzx1+KHgdsYYBygaqUBvrbYCfePedZw==}
 
@@ -5805,6 +5821,9 @@ packages:
 
   unist-util-is@6.0.0:
     resolution: {integrity: sha512-2qCTHimwdxLfz+YzdGfkqNlH0tLi9xjTnHddPmJwtIG9MGsdbutfTc4P+haPD7l7Cjxf/WZj+we5qfVPvvxfYw==}
+
+  unist-util-is@6.0.1:
+    resolution: {integrity: sha512-LsiILbtBETkDz8I9p1dQ0uyRUWuaQzd/cuEeS1hoRSyW5E5XGmTzlwY1OrNzzakGowI9Dr/I8HVaw4hTtnxy8g==}
 
   unist-util-position-from-estree@1.1.2:
     resolution: {integrity: sha512-poZa0eXpS+/XpoQwGwl79UUdea4ol2ZuCYguVaJS4qzIOMDzbqz8a3erUCOmubSZkaOuGamb3tX790iwOIROww==}
@@ -5847,6 +5866,9 @@ packages:
 
   unist-util-visit@5.0.0:
     resolution: {integrity: sha512-MR04uvD+07cwl/yhVuVWAtw+3GOR/knlL55Nd/wAdblk27GCVt3lqpTivy/tkJcZoNPzTwS1Y+KMojlLDhoTzg==}
+
+  unist-util-visit@5.1.0:
+    resolution: {integrity: sha512-m+vIdyeCOpdr/QeQCu2EzxX/ohgS8KbnPDgFni4dQsfSCtpz8UqDyY5GjRru8PDKuYn7Fq19j1CQ+nJSsGKOzg==}
 
   universalify@2.0.1:
     resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
@@ -8312,9 +8334,9 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  babel-plugin-transform-import-meta@2.2.1(@babel/core@7.26.0):
+  babel-plugin-transform-import-meta@2.2.1(@babel/core@7.18.13):
     dependencies:
-      '@babel/core': 7.26.0
+      '@babel/core': 7.18.13
       '@babel/template': 7.27.0
       tslib: 2.8.1
 
@@ -12538,6 +12560,15 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  remark-flexible-containers@1.5.3(unified@10.1.2):
+    dependencies:
+      '@types/mdast': 4.0.4
+      unified: 10.1.2
+      unist-builder: 4.0.0
+      unist-util-find-after: 5.0.0
+      unist-util-find-between-all: 1.1.6
+      unist-util-visit: 5.1.0
+
   remark-frontmatter@4.0.1:
     dependencies:
       '@types/mdast': 3.0.15
@@ -13228,6 +13259,16 @@ snapshots:
       '@types/unist': 2.0.11
       unist-util-is: 5.2.1
 
+  unist-util-find-after@5.0.0:
+    dependencies:
+      '@types/unist': 3.0.3
+      unist-util-is: 6.0.0
+
+  unist-util-find-between-all@1.1.6:
+    dependencies:
+      '@types/unist': 3.0.3
+      unist-util-is: 6.0.1
+
   unist-util-find@1.0.4:
     dependencies:
       lodash.iteratee: 4.7.0
@@ -13242,6 +13283,10 @@ snapshots:
       '@types/unist': 2.0.11
 
   unist-util-is@6.0.0:
+    dependencies:
+      '@types/unist': 3.0.3
+
+  unist-util-is@6.0.1:
     dependencies:
       '@types/unist': 3.0.3
 
@@ -13306,6 +13351,12 @@ snapshots:
       unist-util-visit-parents: 5.1.3
 
   unist-util-visit@5.0.0:
+    dependencies:
+      '@types/unist': 3.0.3
+      unist-util-is: 6.0.0
+      unist-util-visit-parents: 6.0.1
+
+  unist-util-visit@5.1.0:
     dependencies:
       '@types/unist': 3.0.3
       unist-util-is: 6.0.0

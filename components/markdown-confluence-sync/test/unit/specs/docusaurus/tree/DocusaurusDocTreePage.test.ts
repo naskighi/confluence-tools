@@ -193,7 +193,7 @@ describe("docusaurusDocTreePage", () => {
     expect(page.meta.syncToConfluence).toBe(true);
   });
 
-  it("should set syncToConfluence to false if not specified", () => {
+  it("should set syncToConfluence to true if not specified", () => {
     // Arrange
     writeFileSync(
       file.name,
@@ -210,7 +210,7 @@ describe("docusaurusDocTreePage", () => {
     const page = new DocusaurusDocTreePage(file.name);
 
     // Assert
-    expect(page.meta.syncToConfluence).toBe(false);
+    expect(page.meta.syncToConfluence).toBe(true);
   });
 
   describe("confluence short name", () => {

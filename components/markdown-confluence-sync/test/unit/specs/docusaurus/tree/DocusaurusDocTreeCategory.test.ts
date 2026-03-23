@@ -271,6 +271,7 @@ describe("docusaurusDocTreeCategory", () => {
           dedent`
             ---
             title: Child Title
+            sync_to_confluence: false
             ---
 
             # Hello World
@@ -285,6 +286,7 @@ describe("docusaurusDocTreeCategory", () => {
           dedent`
           ---
           title: Page Title
+          sync_to_confluence: false
           ---
 
           # Hello World

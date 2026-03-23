@@ -58,7 +58,14 @@ const remarkRemoveAdmonitions: UnifiedPlugin<
   Root
 > = function remarkRemoveAdmonitions() {
   return function (tree) {
-    replace(tree, "containerDirective", (node): Blockquote => {
+    replace(tree, "containerDirective", (node): any => {
+      if (
+        !Object.values(DocusaurusAdmonitionType).includes(
+          node.name as DocusaurusAdmonitionType,
+        )
+      ) {
+        return node;
+      }
       const admonitionTitle = find(
         node,
         (child: Content) =>

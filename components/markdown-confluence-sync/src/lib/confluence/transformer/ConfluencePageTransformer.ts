@@ -12,6 +12,8 @@ import rehypeStringify from "rehype-stringify";
 import { remark } from "remark";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
+import remarkDirective from "remark-directive";
+import remarkFlexibleContainers from "remark-flexible-containers";
 import remarkRehype from "remark-rehype";
 import { toVFile } from "to-vfile";
 
@@ -34,6 +36,7 @@ import rehypeReplaceImgTags from "./support/rehype/rehype-replace-img-tags.js";
 import rehypeReplaceInternalReferences from "./support/rehype/rehype-replace-internal-references.js";
 import rehypeReplaceStrikethrough from "./support/rehype/rehype-replace-strikethrough.js";
 import rehypeReplaceTaskList from "./support/rehype/rehype-replace-task-list.js";
+import rehypeReplaceFlexibleContainers from "./support/rehype/rehype-replace-flexible-containers.js";
 import remarkRemoveFootnotes from "./support/remark/remark-remove-footnotes.js";
 import remarkRemoveMdxCodeBlocks from "./support/remark/remark-remove-mdx-code-blocks.js";
 import remarkReplaceMermaid from "./support/remark/remark-replace-mermaid.js";
@@ -101,18 +104,33 @@ export const ConfluencePageTransformer: ConfluencePageTransformerConstructor = c
     try {
       let processor = remark()
         .use(remarkGfm)
+        .use(remarkDirective)
+        .use(remarkFlexibleContainers)
         .use(remarkFrontmatter)
         .use(remarkRemoveFootnotes)
         .use(remarkRemoveMdxCodeBlocks)
         .use(remarkReplaceMermaid, {
           outDir: mermaidDiagramsDir,
         })
-        .use(remarkRehype, { allowDangerousHtml: true })
+        .use(remarkRehype, {
+          allowDangerousHtml: true,
+          handlers: {
+            containerDirective: (h: any, node: any) => {
+              return h(
+                node,
+                "div",
+                { class: `remark-container ${node.name}` },
+                h.all(node),
+              );
+            },
+          },
+        })
         .use(rehypeRaw)
         .use(rehypeAddNotice, { noticeMessage })
         .use(rehypeReplaceDetails)
         .use(rehypeReplaceStrikethrough)
-        .use(rehypeReplaceTaskList);
+        .use(rehypeReplaceTaskList)
+        .use(rehypeReplaceFlexibleContainers);
 
       // Conditionally add code blocks plugin
       if (this._rehypeCodeBlocksEnabled) {
