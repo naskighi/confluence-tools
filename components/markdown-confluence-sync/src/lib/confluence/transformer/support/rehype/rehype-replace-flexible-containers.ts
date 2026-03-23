@@ -86,6 +86,18 @@ const rehypeReplaceFlexibleContainers: UnifiedPlugin<[], Root> =
         // Build the Confluence macro
         const macroChildren: ElementContent[] = [];
 
+        // Fallback for expand titles: if no title div was found, use the first child as title
+        if (!titleContent && macroName === "expand" && bodyContent.length > 0) {
+            const firstChild = bodyContent[0];
+            if (firstChild.type === "element" && firstChild.tagName === "p") {
+                titleContent = firstChild.children;
+                bodyContent.shift();
+            } else if (firstChild.type === "text") {
+                titleContent = [firstChild];
+                bodyContent.shift();
+            }
+        }
+
         // Add title parameter
         if (titleContent && titleContent.length > 0) {
             macroChildren.push({
