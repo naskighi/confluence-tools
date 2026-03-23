@@ -123,6 +123,14 @@ export const ConfluencePageTransformer: ConfluencePageTransformerConstructor = c
                 h.all(node),
               );
             },
+            container: (h: any, node: any) => {
+              return h(
+                node,
+                "div",
+                { class: `remark-container ${node.name}` },
+                h.all(node),
+              );
+            },
           },
         })
         .use(rehypeRaw)

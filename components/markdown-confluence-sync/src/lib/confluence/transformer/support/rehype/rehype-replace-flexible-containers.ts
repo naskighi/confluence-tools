@@ -4,6 +4,8 @@
 import type { Element as HastElement, Root, Text as HastText, ElementContent } from "hast";
 import type { Plugin as UnifiedPlugin } from "unified";
 
+import { toString as hastToString } from "hast-util-to-string";
+
 import { replace } from "../../../../support/unist/unist-util-replace.js";
 
 /**
@@ -106,7 +108,12 @@ const rehypeReplaceFlexibleContainers: UnifiedPlugin<[], Root> =
                 properties: {
                     "ac:name": "title",
                 },
-                children: titleContent,
+                children: [
+                    {
+                        type: "text",
+                        value: hastToString({ type: "element", tagName: "span", properties: {}, children: titleContent }),
+                    },
+                ],
             });
         }
 

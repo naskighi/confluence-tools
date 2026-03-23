@@ -6,7 +6,7 @@ import remarkFlexibleContainers from "remark-flexible-containers";
 import remarkRehype from "remark-rehype";
 import rehypeStringify from "rehype-stringify";
 
-import rehypeReplaceFlexibleContainers from "../../../../../../../src/lib/confluence/transformer/support/rehype/rehype-replace-flexible-containers.js";
+import rehypeReplaceFlexibleContainers from "@src/lib/confluence/transformer/support/rehype/rehype-replace-flexible-containers";
 
 describe("rehypeReplaceFlexibleContainers", () => {
   it("should replace remark-flexible-containers warning with confluence warning macro", async () => {
@@ -104,5 +104,22 @@ This is a tip.
     expect(result).toContain('<ac:structured-macro ac:name="info">');
   });
 
+  it("should convert rich text in title to plain text", async () => {
+    const doc = `
+::: info **Bold Title** with *italic*
+Some content.
+:::
+`;
+    const processor = remark()
+      .use(remarkFlexibleContainers)
+      .use(remarkRehype, { allowDangerousHtml: true })
+      .use(rehypeReplaceFlexibleContainers)
+      .use(rehypeStringify);
+
+    const vfile = await processor.process(doc);
+    const result = vfile.toString();
+    
+    expect(result).toContain('<ac:parameter ac:name="title">Bold Title with italic</ac:parameter>');
+  });
 });
 

@@ -15,6 +15,8 @@ import remarkRehype from "remark-rehype";
 import type { Plugin as UnifiedPlugin } from "unified";
 import type { VFile } from "vfile";
 
+import { toString as hastToString } from "hast-util-to-string";
+
 import { replace } from "../../../../../lib/support/unist/unist-util-replace.js";
 import { InvalidDetailsTagMissingSummaryError } from "../../errors/InvalidDetailsTagMissingSummaryError.js";
 
@@ -71,7 +73,12 @@ function replaceDetailsTag(node: HastElement): HastElement {
         properties: {
           "ac:name": "title",
         },
-        children: [...detailTitle.children],
+        children: [
+          {
+            type: "text",
+            value: hastToString({ type: "element", tagName: "span", properties: {}, children: detailTitle.children }),
+          },
+        ],
       },
       {
         type: "element" as const,

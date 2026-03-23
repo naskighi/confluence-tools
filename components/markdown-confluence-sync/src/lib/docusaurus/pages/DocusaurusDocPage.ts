@@ -5,7 +5,8 @@ import { existsSync, lstatSync } from "node:fs";
 import { join } from "node:path";
 
 import type { LoggerInterface } from "@mocks-server/logger";
-import { remark } from "remark";
+import { unified } from "unified";
+import remarkParse from "remark-parse";
 import remarkDirective from "remark-directive";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
@@ -123,19 +124,22 @@ export const DocusaurusDocPage: DocusaurusDocPageConstructor = class DocusaurusD
   }
 
   protected _parseFile(path: string): VFile {
-    return remark()
+    const file = readMarkdownAndPatchDocusaurusAdmonitions(path, {
+      logger: this._logger,
+      contentPreprocessor: this._contentPreprocessor,
+    });
+    const processor = unified()
+      .use(remarkParse)
       .use(remarkGfm)
       .use(remarkFlexibleContainers)
       .use(remarkFrontmatter)
       .use(remarkDirective)
       .use(remarkParseFrontmatter)
       .use(remarkValidateFrontmatter, FrontMatterValidator)
-      .use(remarkReplaceAdmonitions)
-      .processSync(
-        readMarkdownAndPatchDocusaurusAdmonitions(path, {
-          logger: this._logger,
-          contentPreprocessor: this._contentPreprocessor,
-        }),
-      );
+      .use(remarkReplaceAdmonitions);
+
+    const tree = processor.parse(file);
+    processor.runSync(tree, file);
+    return file;
   }
 };

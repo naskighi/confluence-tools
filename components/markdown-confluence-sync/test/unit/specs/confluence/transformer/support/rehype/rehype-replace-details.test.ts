@@ -75,4 +75,21 @@ describe("rehype-replace-details", () => {
         .toString(),
     ).toContain("<p>paragraph</p>");
   });
+
+  it("should convert rich text in summary to plain text in title parameter", () => {
+    // Arrange
+    const html = "<details><summary><strong>Greetings</strong> <em>everyone</em></summary>Hi</details>";
+
+    // Act & Assert
+    expect(
+      unified()
+        .use(rehypeParse)
+        .use(rehypeStringify)
+        .use(rehypeReplaceDetails)
+        .processSync(html)
+        .toString(),
+    ).toContain(
+      '<ac:structured-macro ac:name="expand"><ac:parameter ac:name="title">Greetings everyone</ac:parameter><ac:rich-text-body><p>Hi</p></ac:rich-text-body></ac:structured-macro>',
+    );
+  });
 });
