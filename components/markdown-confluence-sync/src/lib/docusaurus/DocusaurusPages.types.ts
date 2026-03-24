@@ -80,6 +80,8 @@ export interface MarkdownDocument {
    * Replaces title page in children's title.
    */
   name?: string;
+  /** Confluence page labels */
+  labels?: string[];
 }
 
 /** Creates a MarkdownDocuments interface */

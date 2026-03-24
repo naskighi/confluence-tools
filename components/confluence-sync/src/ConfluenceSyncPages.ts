@@ -299,6 +299,9 @@ export const ConfluenceSyncPages: ConfluenceSyncPagesConstructor = class Conflue
       ...job.task.page,
       ancestors,
     });
+    if (job.task.page.labels && job.task.page.labels.length > 0) {
+      await this._confluenceClient.updateLabels(confluencePage.id, job.task.page.labels);
+    }
     job.storeConfluencePage(confluencePage);
     if (
       job.task.page.attachments !== undefined &&
@@ -330,6 +333,9 @@ export const ConfluenceSyncPages: ConfluenceSyncPagesConstructor = class Conflue
       ancestors: confluencePage.ancestors,
       version: confluencePage.version + 1,
     });
+    if (job.task.page.labels && job.task.page.labels.length > 0) {
+      await this._confluenceClient.updateLabels(updatedConfluencePage.id, job.task.page.labels);
+    }
     job.storeConfluencePage(updatedConfluencePage);
     const attachments = await this._confluenceClient.getAttachments(
       confluencePage.id,

@@ -7,7 +7,7 @@ export type ConfluenceId = string;
 export type ConfluencePageBasicInfo = Pick<ConfluencePage, "id" | "title">;
 export type CreatePageParams = Pick<
   ConfluencePage,
-  "title" | "content" | "ancestors"
+  "title" | "content" | "ancestors" | "labels"
 >;
 export type Attachments = Attachment[];
 
@@ -28,6 +28,8 @@ export interface ConfluencePage {
   ancestors?: ConfluencePageBasicInfo[];
   /** Page children */
   children?: ConfluencePageBasicInfo[];
+  /** Page labels */
+  labels?: string[];
 }
 
 export type ConfluenceClientBasicAuthenticationConfig = {
@@ -132,4 +134,9 @@ export interface ConfluenceClientInterface {
    * @param attachments - Attachments to create.
    */
   createAttachments(id: ConfluenceId, attachments: Attachments): Promise<void>;
+  /** Updates the labels of a page in Confluence
+   * @param id - Id of the page to update labels.
+   * @param labels - Labels to set.
+   */
+  updateLabels(id: ConfluenceId, labels: string[]): Promise<void>;
 }

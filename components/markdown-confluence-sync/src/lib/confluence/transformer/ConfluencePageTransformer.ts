@@ -13,7 +13,6 @@ import { remark } from "remark";
 import remarkFrontmatter from "remark-frontmatter";
 import remarkGfm from "remark-gfm";
 import remarkDirective from "remark-directive";
-import remarkFlexibleContainers from "remark-flexible-containers";
 import remarkRehype from "remark-rehype";
 import { toVFile } from "to-vfile";
 
@@ -36,7 +35,13 @@ import rehypeReplaceImgTags from "./support/rehype/rehype-replace-img-tags.js";
 import rehypeReplaceInternalReferences from "./support/rehype/rehype-replace-internal-references.js";
 import rehypeReplaceStrikethrough from "./support/rehype/rehype-replace-strikethrough.js";
 import rehypeReplaceTaskList from "./support/rehype/rehype-replace-task-list.js";
-import rehypeReplaceFlexibleContainers from "./support/rehype/rehype-replace-flexible-containers.js";
+import rehypeReplaceToc from "./support/rehype/rehype-replace-toc.js";
+import rehypeReplaceStatus from "./support/rehype/rehype-replace-status.js";
+import rehypeReplaceAnchor from "./support/rehype/rehype-replace-anchor.js";
+import rehypeReplaceUserMention from "./support/rehype/rehype-replace-user-mention.js";
+import rehypeReplaceJira from "./support/rehype/rehype-replace-jira.js";
+import rehypeReplaceLayout from "./support/rehype/rehype-replace-layout.js";
+import rehypeHardBreaks from "./support/rehype/rehype-hard-breaks.js";
 import remarkRemoveFootnotes from "./support/remark/remark-remove-footnotes.js";
 import remarkRemoveMdxCodeBlocks from "./support/remark/remark-remove-mdx-code-blocks.js";
 import remarkReplaceMermaid from "./support/remark/remark-replace-mermaid.js";
@@ -105,7 +110,6 @@ export const ConfluencePageTransformer: ConfluencePageTransformerConstructor = c
       let processor = remark()
         .use(remarkGfm)
         .use(remarkDirective)
-        .use(remarkFlexibleContainers)
         .use(remarkFrontmatter)
         .use(remarkRemoveFootnotes)
         .use(remarkRemoveMdxCodeBlocks)
@@ -119,7 +123,10 @@ export const ConfluencePageTransformer: ConfluencePageTransformerConstructor = c
               return h(
                 node,
                 "div",
-                { class: `remark-container ${node.name}` },
+                { 
+                  class: `remark-container ${node.name}`,
+                  ...node.attributes
+                },
                 h.all(node),
               );
             },
@@ -127,23 +134,34 @@ export const ConfluencePageTransformer: ConfluencePageTransformerConstructor = c
               return h(
                 node,
                 "div",
-                { class: `remark-container ${node.name}` },
+                { 
+                  class: `remark-container ${node.name}`,
+                  ...node.attributes
+                },
                 h.all(node),
               );
             },
           },
         })
         .use(rehypeRaw)
+        .use(rehypeHardBreaks)
         .use(rehypeAddNotice, { noticeMessage })
         .use(rehypeReplaceDetails)
         .use(rehypeReplaceStrikethrough)
         .use(rehypeReplaceTaskList)
-        .use(rehypeReplaceFlexibleContainers);
+        .use(rehypeReplaceToc)
+        .use(rehypeReplaceStatus)
+        .use(rehypeReplaceAnchor)
+        .use(rehypeReplaceUserMention)
+        .use(rehypeReplaceJira)
+        .use(rehypeReplaceLayout);
 
       // Conditionally add code blocks plugin
       if (this._rehypeCodeBlocksEnabled) {
         this._logger?.debug(`Registering rehypeReplaceCodeBlocks plugin`);
-        processor = processor.use(rehypeReplaceCodeBlocks);
+        processor = processor.use(rehypeReplaceCodeBlocks, {
+          logger: this._logger,
+        });
       }
 
       // Conditionally add alerts plugin
@@ -176,6 +194,7 @@ export const ConfluencePageTransformer: ConfluencePageTransformerConstructor = c
         content: content.toString(),
         attachments: content.data.images as ImagesMetadata,
         ancestors: page.ancestors,
+        labels: page.labels,
       };
     } catch (e) {
       this._logger?.error(

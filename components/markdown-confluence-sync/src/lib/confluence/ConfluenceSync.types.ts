@@ -161,4 +161,6 @@ export interface ConfluenceSyncPage extends ConfluenceInputPage {
    * Forces the confluence page title in child pages' title.
    */
   name?: string;
+  /** Confluence page labels */
+  labels?: string[];
 }

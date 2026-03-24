@@ -29,6 +29,8 @@ export interface DocusaurusDocPageMeta {
    *
    */
   readonly confluencePageId?: string;
+  /** Returns Confluence page labels */
+  readonly labels?: string[];
 }
 
 export interface DocusaurusDocPageInterface {

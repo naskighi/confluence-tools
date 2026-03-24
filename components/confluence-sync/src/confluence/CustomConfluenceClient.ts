@@ -392,6 +392,27 @@ export const CustomConfluenceClient: ConfluenceClientConstructor = class CustomC
     }
   }
 
+  public async updateLabels(id: ConfluenceId, labels: string[]): Promise<void> {
+    if (!this._config.dryRun && labels && labels.length > 0) {
+      try {
+        this._logger.silly(`Updating labels for page with id ${id}: ${labels.join(", ")}`);
+        const labelsBody = labels.map((label) => ({
+          prefix: "global",
+          name: label,
+        }));
+        await this._client.contentLabels.addLabelsToContent({
+          id,
+          body: labelsBody,
+        });
+      } catch (e) {
+        this._logger.error(`Error updating labels for page ${id}: ${e}`);
+        // We don't throw here as labels are secondary
+      }
+    } else if (this._config.dryRun) {
+      this._logger.info(`Dry run: updating labels for page with id ${id}: ${labels?.join(", ")}`);
+    }
+  }
+
   private handleAncestors(
     ancestors?: ConfluencePageBasicInfo[],
   ): { id: string }[] | undefined {

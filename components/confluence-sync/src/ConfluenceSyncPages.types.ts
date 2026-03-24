@@ -42,6 +42,8 @@ export type ConfluenceInputPage = {
   ancestors?: string[];
   /** Input page attachments */
   attachments?: Record<string, string>;
+  /** Input page labels */
+  labels?: string[];
 };
 
 /** Confluence page dictionary */

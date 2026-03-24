@@ -65,6 +65,7 @@ export const DocusaurusTreePages: DocusaurusTreePagesConstructor = class Docusau
       content: item.content,
       ancestors: [],
       name: item.meta.confluenceShortName,
+      labels: item.meta.labels,
     }));
     this._logger.debug(`Found ${pages.length} pages in ${this._path}`);
     const pagePaths = pages.map(({ path }) => path);

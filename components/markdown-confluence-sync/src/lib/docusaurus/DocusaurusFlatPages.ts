@@ -103,6 +103,7 @@ export const MarkdownFlatDocuments: MarkdownFlatDocumentsConstructor = class Mar
       content: item.content,
       ancestors: [],
       name: item.meta.confluenceShortName,
+      labels: item.meta.labels,
     }));
     this._logger.debug(`Found ${pages.length} pages in ${this._cwd}`);
     return pages;

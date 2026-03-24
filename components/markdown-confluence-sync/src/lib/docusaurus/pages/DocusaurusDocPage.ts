@@ -109,6 +109,7 @@ export const DocusaurusDocPage: DocusaurusDocPageConstructor = class DocusaurusD
       this._metadata?.title || frontmatter.confluence_title;
     const confluencePageId =
       this._metadata?.id || frontmatter.confluence_page_id;
+    const labels = this._metadata?.labels || frontmatter.labels;
 
     if (!title) {
       throw new TitleRequiredException(this.path);
@@ -120,6 +121,7 @@ export const DocusaurusDocPage: DocusaurusDocPageConstructor = class DocusaurusD
       confluenceShortName,
       confluenceTitle,
       confluencePageId,
+      labels,
     };
   }
 

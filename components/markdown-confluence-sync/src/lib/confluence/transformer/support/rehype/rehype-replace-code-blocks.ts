@@ -1,10 +1,12 @@
-// SPDX-FileCopyrightText: 2025 Telefónica Innovación Digital
-// SPDX-License-Identifier: Apache-2.0
-
-import type { Element as HastElement, Root, Text as HastText } from "hast";
+import type { Element as HastElement, Root } from "hast";
+import { toString as hastToString } from "hast-util-to-string";
 import type { Plugin as UnifiedPlugin } from "unified";
 
 import { replace } from "../../../../support/unist/unist-util-replace.js";
+
+export interface RehypeReplaceCodeBlocksOptions {
+  logger?: any;
+}
 
 /**
  * UnifiedPlugin to replace `<pre><code>` HastElements with Confluence's
@@ -20,100 +22,109 @@ import { replace } from "../../../../support/unist/unist-util-replace.js";
  *    <ac:plain-text-body><![CDATA[const x = 42;]]></ac:plain-text-body>
  *  </ac:structured-macro>
  */
-const rehypeReplaceCodeBlocks: UnifiedPlugin<[], Root> =
-  function rehypeReplaceCodeBlocks() {
-    return function transformer(tree) {
-      replace(tree, { type: "element", tagName: "pre" }, (node) => {
-        // Check if this pre element contains a code element
-        const codeElement = node.children.find(
-          (child) =>
-            child.type === "element" &&
-            (child as HastElement).tagName === "code",
-        ) as HastElement | undefined;
+const rehypeReplaceCodeBlocks: UnifiedPlugin<
+  [RehypeReplaceCodeBlocksOptions?],
+  Root
+> = function rehypeReplaceCodeBlocks(options) {
+  return function transformer(tree) {
+    replace(tree, { type: "element", tagName: "pre" }, (node) => {
+      // Check if this pre element contains a code element
+      const codeElement = node.children.find(
+        (child) =>
+          child.type === "element" &&
+          (child as HastElement).tagName === "code",
+      ) as HastElement | undefined;
 
-        if (!codeElement) {
-          // If there's no code element, return the pre element unchanged
-          return node;
-        }
+      if (!codeElement) {
+        // If there's no code element, return the pre element unchanged
+        return node;
+      }
 
-        // Extract the language and title from the code element's className
-        const { language, title: titleFromClass } =
-          extractLanguageAndTitle(codeElement);
+      // Extract the language and title from the code element's className
+      const { language, title: titleFromClass } =
+        extractLanguageAndTitle(codeElement);
 
-        // Extract title from metadata (Docusaurus/MDX style)
-        let title = titleFromClass;
-        if (!title && codeElement.data?.meta) {
-          const meta = codeElement.data.meta as string;
-          const titleMatch = meta.match(/title="([^"]*)"/);
-          title = titleMatch ? titleMatch[1] : undefined;
-        }
+      // Extract title from metadata (Docusaurus/MDX style)
+      let title = titleFromClass;
+      if (!title && codeElement.data?.meta) {
+        const meta = codeElement.data.meta as string;
+        const titleMatch = meta.match(/title="([^"]*)"/);
+        title = titleMatch ? titleMatch[1] : undefined;
+      }
 
-        // Extract the text content from the code element
-        const codeContent = extractTextContent(codeElement);
+      // Extract the text content from the code element using hast-util-to-string
+      const codeContent = hastToString(codeElement);
 
-        // Build the Confluence code macro
-        const macroChildren: HastElement[] = [];
+      options?.logger?.debug(
+        `[rehypeReplaceCodeBlocks] Found code block: language=${language}, title=${title}, content length=${codeContent.length}`,
+      );
 
-        // Add language parameter if present
-        if (language) {
-          macroChildren.push({
-            type: "element" as const,
-            tagName: "ac:parameter",
-            properties: {
-              "ac:name": "language",
-            },
-            children: [
-              {
-                type: "raw" as const,
-                value: language,
-              },
-            ],
-          });
-        }
+      // Build the Confluence code macro
+      const macroChildren: HastElement[] = [];
 
-        // Add title parameter if present
-        if (title) {
-          macroChildren.push({
-            type: "element" as const,
-            tagName: "ac:parameter",
-            properties: {
-              "ac:name": "title",
-            },
-            children: [
-              {
-                type: "raw" as const,
-                value: title,
-              },
-            ],
-          });
-        }
-
-        // Add the code content
-        // Note: We use a text node with the raw CDATA markup
-        // The rehypeStringify with allowDangerousHtml will preserve it
+      // Add language parameter if present
+      if (language) {
         macroChildren.push({
           type: "element" as const,
-          tagName: "ac:plain-text-body",
-          properties: {},
+          tagName: "ac:parameter",
+          properties: {
+            "ac:name": "language",
+          },
           children: [
             {
               type: "raw" as const,
-              value: `<![CDATA[${codeContent}]]>`,
+              value: language,
             },
           ],
         });
+      }
 
-        return {
+      // Add title parameter if present
+      if (title) {
+        macroChildren.push({
           type: "element" as const,
-          tagName: "ac:structured-macro",
+          tagName: "ac:parameter",
           properties: {
-            "ac:name": "code",
+            "ac:name": "title",
           },
-          children: macroChildren,
-        };
+          children: [
+            {
+              type: "raw" as const,
+              value: title,
+            },
+          ],
+        });
+      }
+
+      // Add the code content
+      // Note: We use a text node with the raw CDATA markup
+      // The rehypeStringify with allowDangerousHtml will preserve it
+      // Standard Confluence CDATA wrapping. We handle ]]> by splitting it.
+      const safeContent = codeContent.replace(/]]>/g, "]]>]]&gt;<![CDATA[");
+
+      macroChildren.push({
+        type: "element" as const,
+        tagName: "ac:plain-text-body",
+        properties: {},
+        children: [
+          {
+            type: "raw" as const,
+            value: `<![CDATA[${safeContent}]]>`,
+          },
+        ],
       });
-    };
+
+      return {
+        type: "element" as const,
+        tagName: "ac:structured-macro",
+        properties: {
+          "ac:name": "code",
+        },
+        children: macroChildren,
+      };
+    });
   };
+};
 
 /**
  * Extract the language and title from the code element's className property.
@@ -132,7 +143,7 @@ function extractLanguageAndTitle(codeElement: HastElement): {
   const className = codeElement.properties?.className;
 
   if (!className) {
-    return {};
+    return { language: undefined, title: undefined };
   }
 
   // className is always an array of strings, but we check it for safety
@@ -147,36 +158,18 @@ function extractLanguageAndTitle(codeElement: HastElement): {
       // Use regex to parse language, metadata (ignored) and title
       // Format: lang{meta}:title
       const regex = /^([^:{ ]*)(?:\{([^}]*)\})?(?::(.*))?$/;
-      const match = fullLang.match(regex)!;
+      const match = fullLang.match(regex);
 
-      return {
-        language: match[1] || undefined,
-        title: match[3] || undefined,
-      };
+      if (match) {
+        return {
+          language: match[1] || undefined,
+          title: match[3] || undefined,
+        };
+      }
     }
   }
 
-  return {};
-}
-
-/**
- * Extract all text content from an element recursively.
- *
- * @param element - The element to extract text from
- * @returns The concatenated text content
- */
-function extractTextContent(element: HastElement): string {
-  let text = "";
-
-  for (const child of element.children) {
-    if (child.type === "text") {
-      text += (child as HastText).value;
-    } else if (child.type === "element") {
-      text += extractTextContent(child as HastElement);
-    }
-  }
-
-  return text;
+  return { language: undefined, title: undefined };
 }
 
 export default rehypeReplaceCodeBlocks;

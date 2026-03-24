@@ -21,6 +21,8 @@ export interface FileMetadata {
   shortName?: string;
   /** Whether to sync or not the page */
   sync?: boolean;
+  /** Confluence page labels */
+  labels?: string[];
 }
 
 export type FilesMetadata = FileMetadata[];

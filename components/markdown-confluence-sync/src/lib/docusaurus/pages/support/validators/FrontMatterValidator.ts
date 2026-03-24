@@ -14,6 +14,7 @@ export const FrontMatterValidator = z.object({
   confluence_short_name: z.string().nonempty().optional(),
   confluence_title: z.string().nonempty().optional(),
   confluence_page_id: z.string().optional(),
+  labels: z.array(z.string()).optional(),
 });
 
 export type FrontMatter = z.infer<typeof FrontMatterValidator>;

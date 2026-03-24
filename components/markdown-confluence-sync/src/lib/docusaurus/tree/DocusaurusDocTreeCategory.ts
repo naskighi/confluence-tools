@@ -88,6 +88,7 @@ export const DocusaurusDocTreeCategory: DocusaurusDocTreeCategoryConstructor = c
       syncToConfluence: this._index?.meta.syncToConfluence ?? true,
       confluenceShortName: this._index?.meta.confluenceShortName,
       confluenceTitle: this._index?.meta.confluenceTitle,
+      labels: this._index?.meta?.labels,
     };
   }
 
