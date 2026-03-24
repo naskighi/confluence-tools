@@ -454,9 +454,39 @@ Then a warning</p>
     expect(result).toContain("Immediate text");
   });
 
+  it("should remove leading <br/> after alert marker (rehype-hard-breaks simulation)", () => {
+    // Arrange
+    const html = `<blockquote>
+<p>[!NOTE] Nota<br/>
+Nota informativa em azul.</p>
+</blockquote>`;
+
+    // Act
+    const result = unified()
+      .use(rehypeParse)
+      .use(rehypeRaw)
+      .use(rehypeReplaceAlerts)
+      .use(rehypeStringify, {
+        allowDangerousHtml: true,
+        closeSelfClosing: true,
+        tightSelfClosing: true,
+      })
+      .processSync(html)
+      .toString();
+
+    // Assert
+    expect(result).toContain('<ac:structured-macro ac:name="info">');
+    expect(result).toContain('<ac:parameter ac:name="title">Nota');
+    expect(result).toContain("<ac:rich-text-body>");
+    // Should NOT contain <br/> at the beginning of the paragraph
+    // Use regex to be whitespace insensitive (rehype-stringify often adds indentation/newlines)
+    expect(result).toMatch(/<p>\s*Nota informativa em azul\.\s*<\/p>/);
+    expect(result).not.toContain("<p><br/>");
+  });
+
   it("should handle direct text node with remaining text after alert marker", () => {
     // Arrange
-    const html = `<blockquote>[!WARNING] Direct text with remaining content</blockquote>`;
+    const html = `<blockquote>[!WARNING] This is a title</blockquote>`;
 
     // Act
     const result = unified()
@@ -473,9 +503,7 @@ Then a warning</p>
 
     // Assert
     expect(result).toContain('<ac:structured-macro ac:name="warning">');
-    expect(result).toContain('<ac:parameter ac:name="title">Warning');
-    expect(result).toContain("<ac:rich-text-body>");
-    expect(result).toContain("<p>Direct text with remaining content</p>");
+    expect(result).toContain('<ac:parameter ac:name="title">This is a title</ac:parameter>');
   });
 
   it("should handle direct text node without remaining text after alert marker", () => {

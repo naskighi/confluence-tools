@@ -166,7 +166,7 @@ function extractAlertInfo(blockquote: HastElement): AlertInfo | undefined {
   const text = textNode.value;
 
   // Check if it starts with an alert marker and optionally captures a title on the same line
-  const alertMatch = text.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\][ \t]*(.*)/);
+  const alertMatch = text.match(/^\[!(NOTE|TIP|IMPORTANT|WARNING|CAUTION)\](?:[ \t]+([^\n]+))?/);
   if (!alertMatch) {
     return undefined;
   }
@@ -209,6 +209,15 @@ function extractAlertInfo(blockquote: HastElement): AlertInfo | undefined {
       } as HastText;
     } else {
       newParagraphChildren.shift();
+      // Remove leading <br/> or whitespace-only text nodes that might have been newlines
+      while (
+        newParagraphChildren.length > 0 &&
+        ((newParagraphChildren[0].type === "element" &&
+          newParagraphChildren[0].tagName === "br") ||
+          (newParagraphChildren[0].type === "text" && !newParagraphChildren[0].value.trim()))
+      ) {
+        newParagraphChildren.shift();
+      }
     }
 
     if (newParagraphChildren.length > 0) {
