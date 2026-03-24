@@ -1,20 +1,19 @@
 // SPDX-FileCopyrightText: 2024 Telefónica Innovación Digital
 // SPDX-License-Identifier: Apache-2.0
 
-import type { Element as HastElement, Root, Text } from "hast";
+import type { Element as HastElement, Root, Text, Content } from "hast";
 import { visit } from "unist-util-visit";
-
-import type { UnifiedPlugin } from "../../UnifiedProcessor.types.js";
+import type { Plugin as UnifiedPlugin } from "unified";
 
 /**
  * rehype plugin that turns soft breaks (newlines) into hard breaks (<br />).
  */
 const rehypeHardBreaks: UnifiedPlugin<[], Root> =
   function rehypeHardBreaks() {
-    return function transformer(tree) {
+    return function transformer(tree: Root) {
       visit(tree, "element", (node: HastElement) => {
         if (node.tagName === "p") {
-          const newChildren: (HastElement | Text)[] = [];
+          const newChildren: Content[] = [];
           
           for (const child of node.children) {
             if (child.type === "text") {
@@ -37,7 +36,7 @@ const rehypeHardBreaks: UnifiedPlugin<[], Root> =
             }
           }
           
-          node.children = newChildren;
+          node.children = newChildren as HastElement["children"];
         }
       });
     };

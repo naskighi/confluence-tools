@@ -98,7 +98,8 @@ export const DocusaurusDocPage: DocusaurusDocPageConstructor = class DocusaurusD
 
   private _getMeta() {
     const frontmatter = this._vFile.data.frontmatter as FrontMatter;
-    const title = this._metadata?.title || frontmatter.title;
+    const title =
+      this._metadata?.title || frontmatter.title || this._vFile.data.title;
     const syncToConfluence =
       this._metadata?.sync !== undefined
         ? this._metadata.sync
@@ -116,7 +117,7 @@ export const DocusaurusDocPage: DocusaurusDocPageConstructor = class DocusaurusD
     }
 
     this._meta = {
-      title,
+      title: title as string,
       syncToConfluence,
       confluenceShortName,
       confluenceTitle,
@@ -138,7 +139,22 @@ export const DocusaurusDocPage: DocusaurusDocPageConstructor = class DocusaurusD
       .use(remarkDirective)
       .use(remarkParseFrontmatter)
       .use(remarkValidateFrontmatter, FrontMatterValidator)
-      .use(remarkReplaceAdmonitions);
+      .use(remarkReplaceAdmonitions)
+      .use(() => (tree: any, vFile: VFile) => {
+        // Fallback: extract title from first H1 heading if not present in frontmatter
+        if (!vFile.data.frontmatter || !(vFile.data.frontmatter as any).title) {
+          const firstH1 = tree.children.find(
+            (node: any) => node.type === "heading" && node.depth === 1,
+          );
+          if (firstH1) {
+            // Extract text from the H1 heading
+            vFile.data.title = firstH1.children
+              .filter((child: any) => child.type === "text")
+              .map((child: any) => child.value)
+              .join("");
+          }
+        }
+      });
 
     const tree = processor.parse(file);
     processor.runSync(tree, file);
